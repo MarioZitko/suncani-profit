@@ -1,6 +1,7 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import "./index.css"
+import "leaflet/dist/leaflet.css"
 import App from "./App.tsx"
 import L from "leaflet"
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png"
