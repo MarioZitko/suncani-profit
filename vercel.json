@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/esri-tiles/:z/:y/:x",
+      "destination": "/api/esri-tiles?z=:z&y=:y&x=:x"
+    }
+  ]
+}
