@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { cities } from "./data/cities";
-import { BatterySize, City, Orientation } from "./types";
-import { useDarkMode } from "./hooks/useDarkMode";
-import { usePVGIS } from "./hooks/usePVGIS";
-import { useCalculator } from "./hooks/useCalculator";
-import Map from "./components/Map";
-import SavingsChart from "./components/SavingsChart";
-import InputPanel from "./components/InputPanel";
-import { ResultCard } from "./components/ResultCard";
-import { ThemeToggle } from "./components/ThemeToggle";
+import { cities } from "@/data/cities";
+import { BatterySize, City, Orientation } from "@/types";
+import { useDarkMode } from "@/hooks/useDarkMode";
+import { usePVGIS } from "@/hooks/usePVGIS";
+import { useCalculator } from "@/hooks/useCalculator";
+import Map from "@/components/Map";
+import SavingsChart from "@/components/SavingsChart";
+import InputPanel from "@/components/InputPanel";
+import { ResultCard } from "@/components/ResultCard";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 
 export default function App() {
@@ -45,7 +45,7 @@ export default function App() {
         )}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
           <div className="space-y-6">
-            <div className="overflow-hidden rounded-xl border h-64 sm:h-72">
+            <div className="overflow-hidden rounded-xl border border-border h-64 sm:h-72">
               <Map selectedCity={selectedCity} onCitySelect={setSelectedCity} dark={dark} />
             </div>
             <SavingsChart yearData={result.yearData} dark={dark} />

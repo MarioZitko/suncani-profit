@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { SELF_CONSUMPTION_RATE } from "@/lib/constants";
-import { BatterySize, City, Orientation } from "../types";
-import CitySelector from "./CitySelector";
+import { BatterySize, City, Orientation } from "@/types";
+import CitySelector from "@/components/CitySelector";
 
 interface InputPanelProps {
   selectedCity: City;
