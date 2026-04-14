@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cities } from "@/data/cities";
-import { BatterySize, City, Orientation } from "@/types";
+import { BatterySize, City, MapMode, Orientation, PanelLayout, Recommendation } from "@/types";
 import { useDarkMode } from "@/hooks/useDarkMode";
-import { usePVGIS } from "@/hooks/usePVGIS";
+import { usePVGIS, usePVGISPerKwp } from "@/hooks/usePVGIS";
 import { useCalculator } from "@/hooks/useCalculator";
+import { packPanels } from "@/lib/panelPacking";
+import { recommend } from "@/lib/recommend";
 import Map from "@/components/Map";
+import ModeToggle from "@/components/ModeToggle";
+import RoofStats from "@/components/RoofStats";
+import { RecommendationCard } from "@/components/RecommendationCard";
 import SavingsChart from "@/components/SavingsChart";
 import InputPanel from "@/components/InputPanel";
 import { ResultCard } from "@/components/ResultCard";
@@ -17,10 +22,37 @@ export default function App() {
   const [orientation, setOrientation] = useState<Orientation>("south");
   const [battery, setBattery] = useState<BatterySize>("none");
   const [tiltAngle, setTiltAngle] = useState(35);
+  const [monthlyBill, setMonthlyBill] = useState(80);
+
+  // v2
+  const [mapMode, setMapMode] = useState<MapMode>("city");
+  const [layout, setLayout] = useState<PanelLayout | null>(null);
+  const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
 
   const { dark, toggle } = useDarkMode();
   const { annualKwh, loading, error } = usePVGIS({ city: selectedCity, systemKwp, orientation, tiltAngle });
+  const { annualKwhPerKwp, loading: perKwpLoading } = usePVGISPerKwp({ city: selectedCity, orientation, tiltAngle });
   const result = useCalculator({ annualKwh: annualKwh ?? 0, systemKwp, battery, tiltAngle });
+
+  const handleRoofDrawn = (latLngs: [number, number][]) => {
+    setLayout(packPanels(latLngs));
+  };
+
+  useEffect(() => {
+    if (annualKwhPerKwp == null || layout == null || monthlyBill <= 0) {
+      setRecommendation(null);
+      return;
+    }
+    setRecommendation(
+      recommend({ annualKwhPerKwp, roofKwp: layout.systemKwp, monthlyBill })
+    );
+  }, [annualKwhPerKwp, layout, monthlyBill]);
+
+  const applyRecommendation = () => {
+    if (!recommendation) return;
+    setSystemKwp(recommendation.systemKwp);
+    setBattery(recommendation.battery);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -31,6 +63,7 @@ export default function App() {
             <p className="text-xs text-muted-foreground">Kalkulator povrata investicije za solarne panele</p>
           </div>
           <div className="flex items-center gap-2">
+            <ModeToggle mode={mapMode} onModeChange={setMapMode} />
             <Badge variant="outline">Podaci za 2026.</Badge>
             <ThemeToggle dark={dark} onToggle={toggle} />
           </div>
@@ -46,11 +79,25 @@ export default function App() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
           <div className="space-y-6">
             <div className="overflow-hidden rounded-xl border border-border h-64 sm:h-72">
-              <Map selectedCity={selectedCity} onCitySelect={setSelectedCity} dark={dark} />
+              <Map
+                selectedCity={selectedCity}
+                onCitySelect={setSelectedCity}
+                dark={dark}
+                mode={mapMode}
+                onRoofDrawn={handleRoofDrawn}
+              />
             </div>
+            {layout && <RoofStats layout={layout} />}
             <SavingsChart yearData={result.yearData} dark={dark} />
           </div>
           <div className="space-y-4">
+            {mapMode === "satellite" && (
+              <RecommendationCard
+                recommendation={recommendation}
+                loading={perKwpLoading}
+                onApply={applyRecommendation}
+              />
+            )}
             <InputPanel
               selectedCity={selectedCity}
               onCityChange={setSelectedCity}
@@ -62,6 +109,8 @@ export default function App() {
               onBatteryChange={setBattery}
               tiltAngle={tiltAngle}
               onTiltAngleChange={setTiltAngle}
+              monthlyBill={monthlyBill}
+              onMonthlyBillChange={setMonthlyBill}
             />
             <ResultCard result={result} loading={loading} />
           </div>

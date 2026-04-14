@@ -15,6 +15,8 @@ interface InputPanelProps {
   onBatteryChange: (b: BatterySize) => void;
   tiltAngle: number;
   onTiltAngleChange: (v: number) => void;
+  monthlyBill: number;
+  onMonthlyBillChange: (v: number) => void;
 }
 
 const BATTERY_LABELS: Record<BatterySize, string> = {
@@ -44,6 +46,8 @@ export default function InputPanel({
   onBatteryChange,
   tiltAngle,
   onTiltAngleChange,
+  monthlyBill,
+  onMonthlyBillChange,
 }: InputPanelProps) {
   const selfConsumptionPct = Math.round(SELF_CONSUMPTION_RATE[battery] * 100);
 
@@ -149,6 +153,39 @@ export default function InputPanel({
           </div>
           <p className="text-xs text-muted-foreground">
             Vlastita potrošnja: {selfConsumptionPct}% proizvedene energije
+          </p>
+        </div>
+
+        {/* 6. Monthly bill */}
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">Prosječni mjesečni račun</label>
+          <div className="flex items-center gap-3">
+            <Slider
+              min={10}
+              max={500}
+              step={5}
+              value={[monthlyBill]}
+              onValueChange={([v]) => onMonthlyBillChange(v)}
+              className="flex-1"
+            />
+            <div className="flex items-center gap-1 w-24 shrink-0">
+              <input
+                type="number"
+                min={10}
+                max={500}
+                step={5}
+                value={monthlyBill}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value);
+                  if (!isNaN(v)) onMonthlyBillChange(Math.min(500, Math.max(10, v)));
+                }}
+                className="w-16 rounded-md border border-input bg-background px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              <span className="text-sm text-muted-foreground">€</span>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Koristi se samo za automatsku preporuku sustava.
           </p>
         </div>
       </CardContent>

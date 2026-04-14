@@ -16,11 +16,13 @@ const BATTERY_LABELS: Record<string, string> = {
 interface RecommendationCardProps {
   recommendation: Recommendation | null;
   loading?: boolean;
+  onApply?: () => void;
 }
 
 export function RecommendationCard({
   recommendation,
   loading,
+  onApply,
 }: RecommendationCardProps) {
   if (loading) {
     return (
@@ -90,6 +92,16 @@ export function RecommendationCard({
           </li>
         ))}
       </ul>
+
+      {onApply && (
+        <button
+          type="button"
+          onClick={onApply}
+          className="w-full rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          Primijeni preporuku
+        </button>
+      )}
     </div>
   );
 }
