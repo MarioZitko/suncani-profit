@@ -4,7 +4,9 @@ import {
   SYSTEM_COST_PER_KWP,
   BATTERY_COST,
   SELF_CONSUMPTION_RATE,
+  COVERAGE_TARGET,
 } from "./constants";
+import type { BatterySize, Recommendation } from "../types";
 
 export interface RecommendInput {
   annualKwhPerKwp: number; // from PVGIS 1kWp query
@@ -12,15 +14,7 @@ export interface RecommendInput {
   monthlyBill: number;     // EUR/month
 }
 
-export interface RecommendResult {
-  systemKwp: number;
-  battery: "none" | "5kWh" | "10kWh";
-  reasoning: string[];
-  paybackYears: number;
-  annualSavings: number;
-}
-
-type BatteryOption = "none" | "5kWh" | "10kWh";
+type BatteryOption = BatterySize;
 
 function calcOption(
   annualKwhPerKwp: number,
@@ -36,14 +30,14 @@ function calcOption(
   return { paybackYears, annualSavings };
 }
 
-export function recommend(input: RecommendInput): RecommendResult {
+export function recommend(input: RecommendInput): Recommendation {
   const { annualKwhPerKwp, roofKwp, monthlyBill } = input;
   const reasoning: string[] = [];
 
   const annualConsumption = (monthlyBill * 12) / HEP_TARIFF;
 
-  // Target 80% of annual consumption, then clamp to what the roof can fit
-  const targetKwh = annualConsumption * 0.8;
+  // Target COVERAGE_TARGET of annual consumption, then clamp to what the roof can fit
+  const targetKwh = annualConsumption * COVERAGE_TARGET;
   const idealKwp = annualKwhPerKwp > 0 ? targetKwh / annualKwhPerKwp : 0;
   const systemKwp = Math.min(idealKwp, roofKwp);
 

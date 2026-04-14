@@ -35,3 +35,19 @@ export const ORIENTATION_ASPECT: Record<string, number> = {
   south: 0,
   "east-west": 90,
 };
+
+// v2: Panel packing
+// Physical panel dimensions in metres
+export const PANEL_WIDTH_M = 1.134;
+export const PANEL_HEIGHT_M = 1.762;
+// Gap between panels in metres
+export const PANEL_GAP_M = 0.02;
+// Peak power per panel in kWp
+export const PANEL_KWP = 0.42;
+// Grid cell size in metres (panel + gap on each axis)
+export const PANEL_CELL_W = PANEL_WIDTH_M + PANEL_GAP_M; // 1.154m
+export const PANEL_CELL_H = PANEL_HEIGHT_M + PANEL_GAP_M; // 1.782m
+
+// v2: Recommendation engine
+// Target fraction of annual consumption to cover with solar
+export const COVERAGE_TARGET = 0.8;

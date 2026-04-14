@@ -25,3 +25,23 @@ export interface CalculationResult {
   co2Avoided: number;
   yearData: YearDataPoint[];
 }
+
+// v2
+export type MapMode = "city" | "satellite";
+
+export interface RoofPolygon {
+  latLngs: [number, number][];
+}
+
+export interface PanelLayout {
+  count: number;
+  systemKwp: number;
+}
+
+export interface Recommendation {
+  systemKwp: number;
+  battery: BatterySize;
+  reasoning: string[];
+  paybackYears: number;
+  annualSavings: number;
+}

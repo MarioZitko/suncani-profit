@@ -1,15 +1,7 @@
 import * as turf from "@turf/turf";
 import type { Feature, Polygon } from "geojson";
-
-// Panel dimensions in metres (including 0.02m gap)
-const PANEL_W = 1.134 + 0.02; // 1.154m
-const PANEL_H = 1.762 + 0.02; // 1.782m
-const KWP_PER_PANEL = 0.42;
-
-export interface PackingResult {
-  count: number;
-  systemKwp: number;
-}
+import { PANEL_CELL_W, PANEL_CELL_H, PANEL_KWP } from "./constants";
+import type { PanelLayout } from "../types";
 
 /**
  * Counts how many panels fit inside a Leaflet polygon.
@@ -18,7 +10,7 @@ export interface PackingResult {
  */
 export function packPanels(
   latLngs: Array<[number, number]>
-): PackingResult {
+): PanelLayout {
   if (latLngs.length < 3) return { count: 0, systemKwp: 0 };
 
   // Leaflet: [lat, lng] → Turf: [lng, lat]
@@ -41,8 +33,8 @@ export function packPanels(
   const metersPerDegLat = 111320;
   const metersPerDegLng = 111320 * Math.cos(latRad);
 
-  const stepLng = PANEL_W / metersPerDegLng;
-  const stepLat = PANEL_H / metersPerDegLat;
+  const stepLng = PANEL_CELL_W / metersPerDegLng;
+  const stepLat = PANEL_CELL_H / metersPerDegLat;
 
   let count = 0;
 
@@ -57,6 +49,6 @@ export function packPanels(
 
   return {
     count,
-    systemKwp: count * KWP_PER_PANEL,
+    systemKwp: count * PANEL_KWP,
   };
 }
