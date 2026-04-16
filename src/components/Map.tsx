@@ -5,6 +5,7 @@ import { OpenStreetMapProvider, GeoSearchControl } from "leaflet-geosearch";
 import { cities } from "../data/cities";
 import { City, MapMode } from "../types";
 import "leaflet-geosearch/dist/geosearch.css";
+import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 
 const LIGHT_TILE = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
 const DARK_TILE = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
@@ -122,11 +123,12 @@ export default function Map({
     <MapContainer
       center={[selectedCity.lat, selectedCity.lng]}
       zoom={7}
+      maxZoom={20}
       style={{ width: "100%", height: "100%" }}
       zoomControl={true}
     >
       {mode === "satellite" ? (
-        <TileLayer url={ESRI_TILE} attribution={ESRI_ATTRIBUTION} />
+        <TileLayer url={ESRI_TILE} attribution={ESRI_ATTRIBUTION} maxNativeZoom={19} maxZoom={21} keepBuffer={4} />
       ) : (
         <TileLayer
           key={dark ? "dark" : "light"}
