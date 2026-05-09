@@ -39,7 +39,7 @@ export const ORIENTATION_ASPECT: Record<string, number> = {
 // v2: Panel packing
 // Physical panel dimensions in metres
 export const PANEL_WIDTH_M = 1.134;
-export const PANEL_HEIGHT_M = 1.762;
+export const PANEL_HEIGHT_M = 1.722;
 // Gap between panels in metres
 export const PANEL_GAP_M = 0.02;
 // Peak power per panel in kWp

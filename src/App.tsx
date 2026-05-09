@@ -78,7 +78,7 @@ export default function App() {
         )}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
           <div className="space-y-6">
-            <div className="overflow-hidden rounded-xl border border-border h-64 sm:h-72">
+            <div className={`overflow-hidden rounded-xl border border-border transition-all duration-300 ${mapMode === "satellite" ? "h-80 sm:h-[420px] lg:h-[500px]" : "h-64 sm:h-72"}`}>
               <Map
                 selectedCity={selectedCity}
                 onCitySelect={setSelectedCity}

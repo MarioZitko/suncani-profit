@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { SELF_CONSUMPTION_RATE } from "@/lib/constants";
@@ -51,6 +52,14 @@ export default function InputPanel({
 }: InputPanelProps) {
   const selfConsumptionPct = Math.round(SELF_CONSUMPTION_RATE[battery] * 100);
 
+  // Local display strings allow free typing; commit + clamp on blur
+  const [kwpDisplay, setKwpDisplay] = useState(String(systemKwp));
+  const [billDisplay, setBillDisplay] = useState(String(monthlyBill));
+
+  // Keep display in sync when parent value changes (e.g. from slider or recommendation)
+  useEffect(() => { setKwpDisplay(String(systemKwp)); }, [systemKwp]);
+  useEffect(() => { setBillDisplay(String(monthlyBill)); }, [monthlyBill]);
+
   return (
     <Card>
       <CardHeader>
@@ -81,12 +90,15 @@ export default function InputPanel({
                 min={2}
                 max={20}
                 step={0.5}
-                value={systemKwp}
-                onChange={(e) => {
-                  const v = parseFloat(e.target.value);
-                  if (!isNaN(v)) onSystemKwpChange(Math.min(20, Math.max(2, v)));
+                value={kwpDisplay}
+                onChange={(e) => setKwpDisplay(e.target.value)}
+                onBlur={() => {
+                  const v = parseFloat(kwpDisplay);
+                  const clamped = isNaN(v) ? systemKwp : Math.min(20, Math.max(2, v));
+                  onSystemKwpChange(clamped);
+                  setKwpDisplay(String(clamped));
                 }}
-                className="w-16 rounded-md border border-input bg-background px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-16 rounded-md border border-input bg-background px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-auto [&::-webkit-inner-spin-button]:appearance-auto"
               />
               <span className="text-sm text-muted-foreground">kWp</span>
             </div>
@@ -174,12 +186,15 @@ export default function InputPanel({
                 min={10}
                 max={500}
                 step={5}
-                value={monthlyBill}
-                onChange={(e) => {
-                  const v = parseFloat(e.target.value);
-                  if (!isNaN(v)) onMonthlyBillChange(Math.min(500, Math.max(10, v)));
+                value={billDisplay}
+                onChange={(e) => setBillDisplay(e.target.value)}
+                onBlur={() => {
+                  const v = parseFloat(billDisplay);
+                  const clamped = isNaN(v) ? monthlyBill : Math.min(500, Math.max(10, v));
+                  onMonthlyBillChange(clamped);
+                  setBillDisplay(String(clamped));
                 }}
-                className="w-16 rounded-md border border-input bg-background px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-16 rounded-md border border-input bg-background px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-auto [&::-webkit-inner-spin-button]:appearance-auto"
               />
               <span className="text-sm text-muted-foreground">€</span>
             </div>
