@@ -11,7 +11,7 @@ const inactiveClass =
 
 const OPTIONS: { value: MapMode; label: string }[] = [
   { value: "city", label: "Gradovi" },
-  { value: "satellite", label: "Satelit + Krov" },
+  { value: "satellite", label: "Satelit" },
 ];
 
 export default function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
@@ -22,7 +22,7 @@ export default function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
           key={value}
           type="button"
           onClick={() => onModeChange(value)}
-          className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+          className={`flex-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
             mode === value ? activeClass : inactiveClass
           }`}
         >

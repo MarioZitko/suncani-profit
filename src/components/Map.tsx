@@ -19,14 +19,22 @@ const ESRI_ATTRIBUTION =
 
 interface MapControllerProps {
   selectedCity: City;
+  mode: MapMode;
 }
 
-function MapController({ selectedCity }: MapControllerProps) {
+function MapController({ selectedCity, mode }: MapControllerProps) {
   const map = useMap();
 
   useEffect(() => {
     map.flyTo([selectedCity.lat, selectedCity.lng], 10, { duration: 1.2 });
   }, [selectedCity, map]);
+
+  useEffect(() => {
+    if (mode === "city") {
+      map.flyTo([selectedCity.lat, selectedCity.lng], 10, { duration: 1.2 });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, map]);
 
   return null;
 }
@@ -128,7 +136,7 @@ export default function Map({
       zoomControl={true}
     >
       {mode === "satellite" ? (
-        <TileLayer url={ESRI_TILE} attribution={ESRI_ATTRIBUTION} maxNativeZoom={19} maxZoom={21} keepBuffer={4} />
+        <TileLayer url={ESRI_TILE} attribution={ESRI_ATTRIBUTION} maxNativeZoom={19} maxZoom={20} keepBuffer={4} />
       ) : (
         <TileLayer
           key={dark ? "dark" : "light"}
@@ -137,7 +145,7 @@ export default function Map({
         />
       )}
 
-      <MapController selectedCity={selectedCity} />
+      <MapController selectedCity={selectedCity} mode={mode} />
 
       {mode === "city" &&
         cities.map((city) => {

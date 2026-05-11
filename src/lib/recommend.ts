@@ -5,6 +5,7 @@ import {
   BATTERY_COST,
   SELF_CONSUMPTION_RATE,
   COVERAGE_TARGET,
+  ALL_IN_TARIFF,
 } from "./constants";
 import type { BatterySize, Recommendation } from "../types";
 
@@ -19,10 +20,13 @@ type BatteryOption = BatterySize;
 function calcOption(
   annualKwhPerKwp: number,
   systemKwp: number,
-  battery: BatteryOption
+  battery: BatteryOption,
+  annualConsumption: number
 ): { paybackYears: number; annualSavings: number } {
   const annualProduction = annualKwhPerKwp * systemKwp;
-  const selfConsumed = annualProduction * SELF_CONSUMPTION_RATE[battery];
+  const selfRate = SELF_CONSUMPTION_RATE[battery];
+  // Cap self-consumed kWh at actual consumption (2026 net-billing rule).
+  const selfConsumed = Math.min(annualProduction * selfRate, annualConsumption);
   const exported = annualProduction - selfConsumed;
   const annualSavings = selfConsumed * HEP_TARIFF + exported * EXPORT_RATE;
   const totalCost = systemKwp * SYSTEM_COST_PER_KWP + BATTERY_COST[battery];
@@ -34,9 +38,12 @@ export function recommend(input: RecommendInput): Recommendation {
   const { annualKwhPerKwp, roofKwp, monthlyBill } = input;
   const reasoning: string[] = [];
 
-  const annualConsumption = (monthlyBill * 12) / HEP_TARIFF;
+  // Divide total bill by the all-in price per kWh — same approach as useCalculator.
+  const annualConsumption = (monthlyBill * 12) / ALL_IN_TARIFF;
 
-  // Target COVERAGE_TARGET of annual consumption, then clamp to what the roof can fit
+  // Size to COVERAGE_TARGET of consumption, clamped by roof capacity.
+  // The 80% target already ensures production stays below consumption, so no
+  // separate maxKwpByConsumption guard is needed.
   const targetKwh = annualConsumption * COVERAGE_TARGET;
   const idealKwp = annualKwhPerKwp > 0 ? targetKwh / annualKwhPerKwp : 0;
   const systemKwp = Math.min(idealKwp, roofKwp);
@@ -60,9 +67,9 @@ export function recommend(input: RecommendInput): Recommendation {
     `Procijenjena godišnja proizvodnja: ${annualProduction.toFixed(0)} kWh za sustav od ${systemKwp.toFixed(2)} kWp.`
   );
 
-  const noBattery = calcOption(annualKwhPerKwp, systemKwp, "none");
-  const with5kWh = calcOption(annualKwhPerKwp, systemKwp, "5kWh");
-  const with10kWh = calcOption(annualKwhPerKwp, systemKwp, "10kWh");
+  const noBattery = calcOption(annualKwhPerKwp, systemKwp, "none", annualConsumption);
+  const with5kWh = calcOption(annualKwhPerKwp, systemKwp, "5kWh", annualConsumption);
+  const with10kWh = calcOption(annualKwhPerKwp, systemKwp, "10kWh", annualConsumption);
 
   const diff5 = with5kWh.paybackYears - noBattery.paybackYears;
   const diff10 = with10kWh.paybackYears - noBattery.paybackYears;

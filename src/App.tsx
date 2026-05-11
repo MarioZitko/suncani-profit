@@ -15,6 +15,9 @@ import InputPanel from "@/components/InputPanel";
 import { ResultCard } from "@/components/ResultCard";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
+import { generateReport } from "@/lib/generateReport";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 
 export default function App() {
   const [selectedCity, setSelectedCity] = useState<City>(cities[0]);
@@ -32,7 +35,7 @@ export default function App() {
   const { dark, toggle } = useDarkMode();
   const { annualKwh, loading, error } = usePVGIS({ city: selectedCity, systemKwp, orientation, tiltAngle });
   const { annualKwhPerKwp, loading: perKwpLoading } = usePVGISPerKwp({ city: selectedCity, orientation, tiltAngle });
-  const result = useCalculator({ annualKwh: annualKwh ?? 0, systemKwp, battery, tiltAngle });
+  const result = useCalculator({ annualKwh: annualKwh ?? 0, systemKwp, battery, tiltAngle, monthlyBill });
 
   const handleRoofDrawn = (latLngs: [number, number][]) => {
     setLayout(packPanels(latLngs));
@@ -64,7 +67,29 @@ export default function App() {
           </div>
           <div className="flex items-center gap-2">
             <ModeToggle mode={mapMode} onModeChange={setMapMode} />
-            <Badge variant="outline">Podaci za 2026.</Badge>
+            <Badge variant="outline" className="hidden sm:flex">Podaci za 2026.</Badge>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={loading || result.annualKwh === 0}
+              onClick={() =>
+                generateReport({
+                  city: selectedCity,
+                  systemKwp,
+                  orientation,
+                  battery,
+                  tiltAngle,
+                  monthlyBill,
+                  result,
+                  layout,
+                  recommendation,
+                })
+              }
+              title="Preuzmi PDF izvještaj"
+            >
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline">Izvještaj</span>
+            </Button>
             <ThemeToggle dark={dark} onToggle={toggle} />
           </div>
         </div>

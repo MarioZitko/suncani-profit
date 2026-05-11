@@ -1,7 +1,24 @@
-// HEP electricity tariff in EUR/kWh (household, higher tariff block)
-export const HEP_TARIFF = 0.12;
+// ── HEP tariff structure (2026, source: HEP Elektra + HERA) ─────────────────
+//
+// A Croatian household electricity bill consists of:
+//   Energy supply (opskrba):        0.079 EUR/kWh
+//   Distribution/network (ODS):     0.049 EUR/kWh
+//   Transmission (prijenos):        0.011 EUR/kWh
+//   Renewable levy (OIE):           0.013 EUR/kWh
+//   ─────────────────────────────────────────────
+//   Subtotal before VAT:            0.152 EUR/kWh
+//   VAT (13%):                      0.020 EUR/kWh
+//   ─────────────────────────────────────────────
+//   ALL-IN price:                  ~0.176 EUR/kWh
+//
+// When self-consuming solar you avoid the FULL all-in price per kWh.
+// HEP_TARIFF is therefore set to the all-in rate, not just the supply component.
 
-// Feed-in / export rate for surplus energy in EUR/kWh
+// Full all-in household electricity price including network, OIE and VAT (EUR/kWh)
+export const HEP_TARIFF = 0.176;
+
+// Feed-in / export rate for surplus energy under 2026 net-billing (EUR/kWh).
+// Wholesale reference price — significantly lower than the retail tariff.
 export const EXPORT_RATE = 0.07;
 
 // Installed system cost per kWp in EUR (panels + inverter + installation)
@@ -35,6 +52,12 @@ export const ORIENTATION_ASPECT: Record<string, number> = {
   south: 0,
   "east-west": 90,
 };
+
+// All-in price per kWh — used to convert a monthly bill (EUR) to kWh consumption.
+// Dividing the total bill by this rate gives the actual consumption, because the
+// bill already includes all per-kWh components (network, OIE, VAT).
+// Same value as HEP_TARIFF; kept as a named constant to make the intent clear.
+export const ALL_IN_TARIFF = HEP_TARIFF;
 
 // v2: Panel packing
 // Physical panel dimensions in metres

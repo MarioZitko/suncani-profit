@@ -25,6 +25,8 @@ export function ResultCard({ result, loading }: Props) {
 
 	const {
 		annualKwh,
+		annualConsumption,
+		overcapacity,
 		annualSavings,
 		totalCost,
 		paybackYears,
@@ -35,6 +37,11 @@ export function ResultCard({ result, loading }: Props) {
 
 	const breakEvenYear =
 		yearData.find((d) => d.cumSavings >= d.investment)?.year ?? 0;
+
+	const coveragePercent =
+		annualConsumption > 0
+			? Math.round((annualKwh / annualConsumption) * 100)
+			: null;
 
 	return (
 		<div className="bg-muted rounded-lg p-4 space-y-3">
@@ -75,6 +82,43 @@ export function ResultCard({ result, loading }: Props) {
 					<p className="text-sm font-semibold">{Math.round(co2Avoided)} kg</p>
 				</div>
 			</div>
+
+			{annualConsumption > 0 && (
+				<>
+					<Separator />
+					<div className="space-y-1.5">
+						<div className="flex justify-between text-xs">
+							<span className="text-muted-foreground">Procjena potrošnje / god.</span>
+							<span className="font-medium">{Math.round(annualConsumption)} kWh</span>
+						</div>
+						<div className="flex justify-between text-xs">
+							<span className="text-muted-foreground">Proizvodnja / god.</span>
+							<span className="font-medium">{Math.round(annualKwh)} kWh</span>
+						</div>
+						<div className="w-full bg-background rounded-full h-2 overflow-hidden">
+							<div
+								className={`h-2 rounded-full transition-all ${overcapacity ? "bg-orange-500" : "bg-green-500"}`}
+								style={{ width: `${Math.min(coveragePercent ?? 0, 100)}%` }}
+							/>
+						</div>
+						<p className="text-xs text-muted-foreground text-right">
+							{coveragePercent !== null ? `${coveragePercent}% pokrivenosti` : ""}
+						</p>
+					</div>
+
+					{overcapacity && (
+						<div className="rounded-md bg-orange-500/10 border border-orange-500/30 px-3 py-2 text-xs text-orange-700 dark:text-orange-400 space-y-1">
+							<p className="font-semibold">⚠ Sustav prekapacitiran</p>
+							<p>
+								Godišnja proizvodnja ({Math.round(annualKwh)} kWh) premašuje procijenjenu
+								potrošnju ({Math.round(annualConsumption)} kWh). Prema propisima HEP-a za
+								2026., višak koji ide u mrežu obračunava se po nižoj tarifi izvoza (7 c/kWh).
+								Smanjite snagu sustava dok proizvodnja ne bude ≤ potrošnji za optimalni povrat.
+							</p>
+						</div>
+					)}
+				</>
+			)}
 
 			<Separator />
 

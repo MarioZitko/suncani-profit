@@ -18,6 +18,8 @@ export interface YearDataPoint {
 
 export interface CalculationResult {
   annualKwh: number;
+  annualConsumption: number;   // derived from monthlyBill; 0 if unknown
+  overcapacity: boolean;       // true when production > consumption (2026 net-billing penalty)
   annualSavings: number;
   totalCost: number;
   paybackYears: number;
