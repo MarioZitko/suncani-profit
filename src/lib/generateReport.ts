@@ -288,7 +288,7 @@ export function generateReport(params: ReportParams): void {
     ? [
         ["Break-even (godina)", `Godina ${breakEvenYear}`],
         ["Investicija pokrivena", `${((breakEvenPoint!.cumSavings / totalCost) * 100).toFixed(0)}% u godini ${breakEvenYear}`],
-        ["Zarada nakon 25 god.", pdfEur(yearData[25]?.cumSavings - totalCost ?? 0)],
+        ["Zarada nakon 25 god.", pdfEur((yearData[25]?.cumSavings ?? 0) - totalCost)],
       ]
     : [["Break-even", "Nije dostizno u 25 godina"]];
 
